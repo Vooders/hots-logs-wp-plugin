@@ -32,7 +32,6 @@ function hots_logs_uninstall() {
 	global $wpdb;	//required global declaration of WP variable
 
 	$table_name = $wpdb->prefix . "hots_logs_plugin";
-
 	$sql = "DROP TABLE ". $table_name;
 
 	$wpdb->query($sql);
@@ -67,6 +66,16 @@ function hots_logs_make_db(){
 	dbDelta( $sql );
 	
 	add_option( 'jal_db_version', $jal_db_version );
+}
+
+function getData(){
+	global $wpdb;
+	/* wpdb class should not be called directly.global $wpdb variable is an instantiation of the class already set up to talk to the WordPress database */ 
+	$table_name = $wpdb->prefix . "hots_logs_plugin"; 
+	$result = $wpdb->get_results( "SELECT * FROM $table_name "); /*mulitple row results can be pulled from the database with get_results function and outputs an object which is stored in $result */
+	//echo "<pre>"; print_r($result); echo "</pre>";
+	/* If you require you may print and view the contents of $result object */
+	return $result;	 
 }
 
 function hots_logs_test_db(){

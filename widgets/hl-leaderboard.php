@@ -33,10 +33,13 @@ $filtered_result = array();
 foreach($result as $res){
 	$k = $res->name;
 	$v = $res->hl_mmr;
+	
 	$filtered_result[$k] = $v;
 }
 arsort($filtered_result);
 foreach($filtered_result as $key => $val){
+	if ($val == 0)
+		$val = 'n/a';
 	echo __('<tr>', 'qm_widget_domain');
 	echo __("<th>" . $i ."</th><td>".$key."</td><td>".$val."</td>", 'qm_widget_domain' );
 	echo __('</tr>', 'qm_widget_domain');
@@ -76,19 +79,6 @@ function wpb_load_widget() {
 	register_widget( 'wpb_widget' );
 }
 
-function getData(){
-	global $wpdb;
-	/* wpdb class should not be called directly.global $wpdb variable is an instantiation of the class already set up to talk to the WordPress database */ 
-	$table_name = $wpdb->prefix . "hots_logs_plugin"; 
-	$result = $wpdb->get_results( "SELECT * FROM $table_name "); /*mulitple row results can be pulled from the database with get_results function and outputs an object which is stored in $result */
-	
-	//echo "<pre>"; print_r($result); echo "</pre>";
-	/* If you require you may print and view the contents of $result object */
-	
-	return $result;
 
-	
-	 
-}
 add_action( 'widgets_init', 'wpb_load_widget' );
 ?>
