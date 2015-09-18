@@ -24,7 +24,7 @@ register_deactivation_hook( __FILE__, 'hots_logs_uninstall' );
 */
 function hots_logs_install() {
 	hots_logs_make_db();
-	hots_logs_test_db();	
+	//hots_logs_test_db();	
 }
 
 /* The uninstall function */
@@ -55,8 +55,6 @@ function hots_logs_make_db(){
 	  player_id int(7) NOT NULL,
 	  hl_mmr int(5) NOT NULL,
 	  qm_mmr int(5) NOT NULL,
-	  hl_games int(6) NOT NULL,
-	  qm_games int(6) NOT NULL,
 	  comb_hero_level int(5) NOT NULL,
 	  total_games_played int (6) NOT NULL,
 	  UNIQUE KEY id (id)
@@ -78,6 +76,23 @@ function getData(){
 	return $result;	 
 }
 
+function input($playerArray){
+		global $wpdb;
+		$table_name = $wpdb->prefix . "hots_logs_plugin";
+		
+		$wpdb->insert(
+			$table_name,
+			array(
+				'name' => $playerArray['name'], 
+				'player_id' => $playerArray['pid'], 
+				'hl_mmr' => $playerArray['heroLeague'], 
+				'qm_mmr' => $playerArray['quickMatch'],
+				'comb_hero_level' => $playerArray['combLevel'],	
+				'total_games_played' => $playerArray['totalGames']
+			)
+		);	
+	}	
+
 function hots_logs_test_db(){
 	global $wpdb;
 	$table_name = $wpdb->prefix . "hots_logs_plugin";
@@ -86,17 +101,14 @@ function hots_logs_test_db(){
 	$test_id = 1839756;
 	$test_hl_mmr = 1717;
 	$test_qm_mmr = 2054;
-	$test_hl_games = 15;
-	$test_qm_games = 300;
 	$test_comb_hero_level = 143;
 	$test_total_games = 315;
 	
 	$wpdb->insert(
 		$table_name,
 		array(
-				'name' => $test_name, 'player_id' => $test_id, 'hl_mmr' => $test_hl_mmr, 'qm_mmr' => $test_qm_mmr,
-				'hl_games' => $test_hl_games, 'qm_games' => $test_qm_games, 'comb_hero_level' => $test_comb_hero_level,
-				'total_games_played' => $test_total_games,
+			'name' => $test_name, 'player_id' => $test_id, 'hl_mmr' => $test_hl_mmr, 'qm_mmr' => $test_qm_mmr,
+			'comb_hero_level' => $test_comb_hero_level,	'total_games_played' => $test_total_games
 		)
 	);
 	
@@ -104,17 +116,14 @@ function hots_logs_test_db(){
 	$test_id = 676397;
 	$test_hl_mmr = 1153;
 	$test_qm_mmr = 1534;
-	$test_hl_games = 25;
-	$test_qm_games = 430;
 	$test_comb_hero_level = 225;
 	$test_total_games = 455;
 	
 	$wpdb->insert(
 		$table_name,
 		array(
-				'name' => $test_name, 'player_id' => $test_id, 'hl_mmr' => $test_hl_mmr, 'qm_mmr' => $test_qm_mmr,
-				'hl_games' => $test_hl_games, 'qm_games' => $test_qm_games, 'comb_hero_level' => $test_comb_hero_level,
-				'total_games_played' => $test_total_games,
+			'name' => $test_name, 'player_id' => $test_id, 'hl_mmr' => $test_hl_mmr, 'qm_mmr' => $test_qm_mmr,
+			'comb_hero_level' => $test_comb_hero_level,	'total_games_played' => $test_total_games
 		)
 	);
 	
@@ -122,17 +131,14 @@ function hots_logs_test_db(){
 	$test_id = 2417768;
 	$test_hl_mmr = 0;
 	$test_qm_mmr = 1860;
-	$test_hl_games = 0;
-	$test_qm_games = 104;
 	$test_comb_hero_level = 52;
 	$test_total_games = 104;
 	
 	$wpdb->insert(
 		$table_name,
 		array(
-				'name' => $test_name, 'player_id' => $test_id, 'hl_mmr' => $test_hl_mmr, 'qm_mmr' => $test_qm_mmr,
-				'hl_games' => $test_hl_games, 'qm_games' => $test_qm_games, 'comb_hero_level' => $test_comb_hero_level,
-				'total_games_played' => $test_total_games,
+			'name' => $test_name, 'player_id' => $test_id, 'hl_mmr' => $test_hl_mmr, 'qm_mmr' => $test_qm_mmr,
+			'comb_hero_level' => $test_comb_hero_level,	'total_games_played' => $test_total_games
 		)
 	);
 }
