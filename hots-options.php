@@ -11,8 +11,14 @@ if ( is_admin() ){ // Checks user is an admin
 	}
 	
 	if(isset($_POST['submit'])){
-		include_once('scraper/scraper.php');	
-		scrape($_POST['player_id']);	
+		include_once('scraper/scraper.php');
+		$valid_player = scrape($_POST['player_id']);
+		if ($valid_player != false){
+			insert_player($valid_player);	
+			add_action( 'admin_notices', 'player_added_notice' );
+		} else {
+			add_action( 'admin_notices', 'error_notice' ); 
+		}
 	}
 }
 
@@ -73,4 +79,19 @@ function hots_logs_html_page() {
 </div>
 <?php
 }
+function player_added_notice() {
+    ?>
+    <div class="updated">
+        <p><?php _e( 'New player has been added', 'my-text-domain' ); ?></p>
+    </div>
+    <?php
+}
+
+
+function error_notice() {
+	$class = "error";
+	$message = "Error! You entered an invalid HOTS Logs player ID.";
+        echo"<div class=\"$class\"> <p>$message</p></div>"; 
+}
+
 ?>

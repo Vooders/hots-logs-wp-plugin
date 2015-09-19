@@ -1,6 +1,6 @@
 <?php
-	//error_reporting(E_ALL); ini_set('display_errors',1);
-	
+	error_reporting(E_ALL); ini_set('display_errors',1);
+	ini_set('max_execution_time', 0);
 	// Defining the basic scraping function
     function scrape_between($data, $start, $end){
         $data = stristr($data, $start); // Stripping all data from before $start
@@ -13,7 +13,7 @@
 	function get_all($regex){
 		preg_match_all($regex, $result, $parts);
 		$links = $parts[1];
-		return $start.$links.$end;
+		return $links;
 	}
 	
 	 // Defining the basic cURL function
@@ -23,7 +23,7 @@
             CURLOPT_RETURNTRANSFER => TRUE,  // Setting cURL's option to return the webpage data
             CURLOPT_FOLLOWLOCATION => TRUE,  // Setting cURL to follow 'location' HTTP headers
             CURLOPT_AUTOREFERER => TRUE, // Automatically set the referer where following 'location' HTTP headers
-			CURLOPT_CONNECTTIMEOUT => 120,   // Setting the amount of time (in seconds) before the request times out
+            CURLOPT_CONNECTTIMEOUT => 120,   // Setting the amount of time (in seconds) before the request times out
             CURLOPT_TIMEOUT => 120,  // Setting the maximum amount of time for cURL to execute queries
             CURLOPT_MAXREDIRS => 10, // Setting the maximum number of redirections to follow
             CURLOPT_USERAGENT => "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.1a2pre) Gecko/2008073000 Shredder/3.0a2pre ThunderBrowse/3.2.1.8",  // Setting the useragent
@@ -36,19 +36,4 @@
         curl_close($ch);    // Closing cURL 
         return $data;   // Returning the data from the function 
     }
-	
-	function get($url, $params=array()) {	
-		$url = $url.'?'.http_build_query($params, '', '&');	
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL, $url);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-			
-		$response = curl_exec($ch);
-		
-		curl_close($ch);
-//		echo var_dump($response);
-		return $response;
-	}
 ?>
