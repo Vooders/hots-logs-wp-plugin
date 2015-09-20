@@ -20,16 +20,19 @@ register_activation_hook( __FILE__, 'hots_logs_install');
 /* Runs on plugin deactivation*/
 register_deactivation_hook( __FILE__, 'hots_logs_uninstall' );
 /*
-* The installation function0
+* The installation function
 */
 function hots_logs_install() {
+	$the_time = current_time('unix');
+	add_option('hots_logs_last_scrape', $the_time, '', 'yes');	
 	hots_logs_make_db();
-	
 	
 }
 
+
 /* The uninstall function */
 function hots_logs_uninstall() {
+	delete_option('hots_logs_last_scrape');
 	global $wpdb;	//required global declaration of WP variable
 
 	$table_name = $wpdb->prefix . "hots_logs_plugin";
@@ -76,10 +79,11 @@ function getData(){
 function input($playerArray){
 	global $wpdb;
 	$table_name = $wpdb->prefix . "hots_logs_plugin";
-	$pid = $playerArray['pid'];
 
-	$sql = "INSERT INTO $table_name(player_id, name, hl_mmr, qm_mmr, comb_hero_level, total_games_played) VALUES(%d,%s,%s,%s,%s,%s) ON DUPLICATE KEY UPDATE(hl_mmr = %s, qm_mmr = %s, comb_hero_level = %s, total_games_played = %s)";
-	// var_dump($sql); // debug
+	$sql = "INSERT INTO $table_name(player_id, name, hl_mmr, qm_mmr, comb_hero_level, total_games_played) 
+			VALUES(%d,%s,%s,%s,%s,%s) 
+			ON DUPLICATE KEY UPDATE(hl_mmr = %s, qm_mmr = %s, comb_hero_level = %s, total_games_played = %s)";
+
 	$sql = $wpdb->prepare(
 		$playerArray['pid'],
 		$playerArray['name'],
@@ -88,7 +92,7 @@ function input($playerArray){
 		$playerArray['combLevel'],
 		$playerArray['totalGames']
 		);
-	// var_dump($sql); // debug
+		
 	$wpdb->query($sql);
 }	
 // Warning: mysql_num_rows() expects parameter 1 to be resource, null given in /home/vooders/public_html/wp-content/plugins/hots-logs/hots-logs.php on line 81
@@ -96,17 +100,33 @@ function input($playerArray){
 function insert_player($playerArray){
 	global $wpdb;
 	$table_name = $wpdb->prefix . "hots_logs_plugin";
-	$wpdb->insert(
+	$wpdb->replace(
 		$table_name,
 		array(
-			'name' => $playerArray['name'], 
 			'player_id' => $playerArray['pid'], 
+			'name' => $playerArray['name'], 
 			'hl_mmr' => $playerArray['heroLeague'], 
 			'qm_mmr' => $playerArray['quickMatch'],
 			'comb_hero_level' => $playerArray['combLevel'],	
 			'total_games_played' => $playerArray['totalGames']
+		),
+		array (
+			'%d',
+			'%s',
+			'%s',
+			'%s',
+			'%s',
+			'%s'
 		)
 	);	
+}
+
+function update_hotslogs_data(){
+	$last_scrape = get_option('hots_logs_last_scrape');
+	if ($last_scrape != false){
+		
+	}
+	
 }
 
 function delete_player($pid){
