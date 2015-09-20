@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: Hots Logs - Comparer
+Plugin Name: Hots Logs - Leaderboards
 Plugin URI: http://vooders.com/
 Description: A simple plugin to compare Hots Logs player data.
 Version: 0.1
@@ -8,10 +8,9 @@ Author: Vooders
 Author URI: http://vooders.com
 License: GPL
 */
-
 include('hots-options.php'); 	// Load the admin page code
-include('widgets/hl-leaderboard.php');		// Load the widget code
-include('widgets/qm-leaderboard.php');		// Load the widget code
+include('widgets/hl-leaderboard.php');		// Load the hero league widget code
+include('widgets/qm-leaderboard.php');		// Load the quick mach widget code
 defined( 'ABSPATH' ) or die( 'No script kiddies please!' );
 
 /* Runs when plugin is activated */
@@ -19,16 +18,14 @@ register_activation_hook( __FILE__, 'hots_logs_install');
 
 /* Runs on plugin deactivation*/
 register_deactivation_hook( __FILE__, 'hots_logs_uninstall' );
+
 /*
 * The installation function
 */
 function hots_logs_install() {
-	$the_time = current_time('unix');
-	add_option('hots_logs_last_scrape', $the_time, '', 'yes');	
+	add_option('hots_logs_last_scrape', current_time('timestamp'), '', 'yes');	
 	hots_logs_make_db();
-	
 }
-
 
 /* The uninstall function */
 function hots_logs_uninstall() {
@@ -37,20 +34,17 @@ function hots_logs_uninstall() {
 
 	$table_name = $wpdb->prefix . "hots_logs_plugin";
 	$sql = "DROP TABLE ". $table_name;
-
 	$wpdb->query($sql);
 }
+
 /*
 * Creates the database table to store our player data 
 */
 global $jal_db_version;
 $jal_db_version = '1.0';
-
 function hots_logs_make_db(){
 	global $wpdb;
-	
 	$table_name = $wpdb->prefix . "hots_logs_plugin"; 
-	
 	$charset_collate = $wpdb->get_charset_collate();
 
 	$sql = "CREATE TABLE $table_name (
@@ -65,10 +59,12 @@ function hots_logs_make_db(){
 	
 	require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 	dbDelta( $sql );
-	
 	add_option( 'jal_db_version', $jal_db_version );
 }
 
+/*
+* Returns the player data table as an array
+*/
 function getData(){
 	global $wpdb;
 	$table_name = $wpdb->prefix . "hots_logs_plugin"; 
@@ -76,27 +72,11 @@ function getData(){
 	return $result;	 
 }
 
-function input($playerArray){
-	global $wpdb;
-	$table_name = $wpdb->prefix . "hots_logs_plugin";
-
-	$sql = "INSERT INTO $table_name(player_id, name, hl_mmr, qm_mmr, comb_hero_level, total_games_played) 
-			VALUES(%d,%s,%s,%s,%s,%s) 
-			ON DUPLICATE KEY UPDATE(hl_mmr = %s, qm_mmr = %s, comb_hero_level = %s, total_games_played = %s)";
-
-	$sql = $wpdb->prepare(
-		$playerArray['pid'],
-		$playerArray['name'],
-		$playerArray['heroLeague'],
-		$playerArray['quickMatch'],
-		$playerArray['combLevel'],
-		$playerArray['totalGames']
-		);
-		
-	$wpdb->query($sql);
-}	
-// Warning: mysql_num_rows() expects parameter 1 to be resource, null given in /home/vooders/public_html/wp-content/plugins/hots-logs/hots-logs.php on line 81
-
+/*
+* Inserts a new player into the database
+* If player allready exists
+* Updates player information
+*/
 function insert_player($playerArray){
 	global $wpdb;
 	$table_name = $wpdb->prefix . "hots_logs_plugin";
@@ -121,14 +101,21 @@ function insert_player($playerArray){
 	);	
 }
 
+/*
+* Updates the hotslogs.com data for all players in the database
+* Limited to 1 run every 60 min
+*/
 function update_hotslogs_data(){
 	$last_scrape = get_option('hots_logs_last_scrape');
-	if ($last_scrape != false){
-		
-	}
-	
+	if ((current_time('timestamp')-$last_scrape)>=3600 ){
+		global $wpdb;
+		$table_name = $wpdb->prefix . "hots_logs_plugin";		
+	}	
 }
 
+/*
+* Deletes a player from the database
+*/
 function delete_player($pid){
 	global $wpdb;
 	$table_name = $wpdb->prefix . "hots_logs_plugin";

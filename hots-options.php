@@ -2,23 +2,25 @@
 defined( 'ABSPATH' ) or die( 'No script kiddies please!' );
 
 if ( is_admin() ){ // Checks user is an admin
-	/* Call the html code */
-	add_action('admin_menu', 'hots_logs_admin_menu');
+	add_action('admin_menu', 'hots_logs_admin_menu');	// Call the html code 
 	
-	function hots_logs_admin_menu() {
-		add_options_page('Hots Logs', 'Hots Logs', 'administrator',
-		'hots_logs', 'hots_logs_html_page');
+	function hots_logs_admin_menu() {	// Add the options page
+		add_options_page('Hots Logs', 'Hots Logs', 'administrator',	'hots_logs', 'hots_logs_html_page');
 	}
 	
-	if(isset($_POST['submit'])){
-		include_once('scraper/scraper.php');
-		$valid_player = scrape($_POST['player_id']);
-		if ($valid_player != false){
-			insert_player($valid_player);	
-			add_action( 'admin_notices', 'player_added_notice' );
-		} else {
-			add_action( 'admin_notices', 'error_notice' ); 
+	if(isset($_POST['submit'])){ 						// If submit button has been pressed
+		include_once('scraper/scraper.php');			// Load the scraper
+		$valid_player = scrape($_POST['player_id']);	// Scrape the page
+		if ($valid_player != false){					// If scraper had no problems
+			insert_player($valid_player);					// Insert the player
+			add_action( 'admin_notices', 'player_added_notice' );	// Show success message
+		} else {										// If scraper returns false
+			add_action( 'admin_notices', 'error_notice' ); 	// Show error notice take no other action
 		}
+	}
+	elseif(isset($_POST['delete'])){
+		delete_player($_POST['name']);
+		add_action( 'admin_notices', 'player_deleted_notice' );
 	}
 }
 
@@ -28,7 +30,7 @@ function hots_logs_html_page() {
 <h1>Hots Logs Options</h1>
 <p> Add your friends to create your own leaderboards from data scraped from hotslogs.com</p>
 <h2>Add a Player</h2>
-<p>Enter the HOTS Logs player IDs of the players you want to track.</p>
+<p>Enter the HOTS Logs player ID of the player you want to add.</p>
 <form method='post' action=''>
 <?php 
 	settings_fields('hots_logs'); 
@@ -67,9 +69,12 @@ function hots_logs_html_page() {
 	foreach($result as $res){
 		echo 	
 		"<tr> 
+		<form method='post' action=''>
 			<td>" . $res->player_id . "</td>
 			<td>" . $res->name . "</td>
-			<td>" . '<input type="submit" name="del_'.$res->name.'" id="del_'.$res->name.'" class="button delete" value="X">' . "</td>
+			<td><input type='hidden' name='name' value=".$res->player_id." />" . 
+			'<input type="submit" name="delete" id="del" class="button delete" value="X">' . "</td>
+		</form>
 		</tr>";	
 		$i++;
 	}
@@ -87,6 +92,13 @@ function player_added_notice() {
     <?php
 }
 
+function player_deleted_notice() {
+    ?>
+    <div class="updated">
+        <p><?php _e( 'Player removed from database', 'my-text-domain' ); ?></p>
+    </div>
+    <?php
+}
 
 function error_notice() {
 	$class = "error";
