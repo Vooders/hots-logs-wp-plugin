@@ -9,7 +9,7 @@ if ( is_admin() ){ // Checks user is an admin
 	}
 	
 	if(isset($_POST['submit'])){ 						// If submit button has been pressed
-		include_once('scraper/scraper.php');			// Load the scraper
+		include_once('scraper/scraper.php');	
 		$valid_player = scrape($_POST['player_id']);	// Scrape the page
 		if ($valid_player != false){					// If scraper had no problems
 			insert_player($valid_player);					// Insert the player
@@ -81,6 +81,15 @@ function hots_logs_html_page() {
 ?>
 </tbody>
 </table>
+</div>
+<div>
+	<p align="right">
+    	The plugin will refresh <a href="http://hotslogs.com">hotslogs.com</a> data no more than once per hour
+    <br /><small>
+    	Last scraped hotslogs.com | <?php echo gmdate("D d M H:i", get_option('hots_logs_last_scrape')) ; ?>
+    <br>
+    	Next scrape after | <?php echo gmdate("D d M H:i", (get_option('hots_logs_last_scrape')+3600)) . '&nbsp'; ?>
+    </small></p>
 </div>
 <?php
 }

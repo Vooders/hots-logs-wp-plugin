@@ -8,9 +8,12 @@ Author: Vooders
 Author URI: http://vooders.com
 License: GPL
 */
+
 include('hots-options.php'); 	// Load the admin page code
 include('widgets/hl-leaderboard.php');		// Load the hero league widget code
 include('widgets/qm-leaderboard.php');		// Load the quick mach widget code
+include('widgets/hots_logs_all_data_widget.php');
+include_once('scraper/scraper.php');			// Load the scraper
 defined( 'ABSPATH' ) or die( 'No script kiddies please!' );
 
 /* Runs when plugin is activated */
@@ -19,19 +22,20 @@ register_activation_hook( __FILE__, 'hots_logs_install');
 /* Runs on plugin deactivation*/
 register_deactivation_hook( __FILE__, 'hots_logs_uninstall' );
 
+add_action('wp_loaded', 'update_hotslogs_data');
+
 /*
 * The installation function
 */
 function hots_logs_install() {
-	add_option('hots_logs_last_scrape', current_time('timestamp'), '', 'yes');	
+	add_option('hots_logs_last_scrape', '0', '', 'yes');	
 	hots_logs_make_db();
 }
 
 /* The uninstall function */
 function hots_logs_uninstall() {
 	delete_option('hots_logs_last_scrape');
-	global $wpdb;	//required global declaration of WP variable
-
+	global $wpdb;
 	$table_name = $wpdb->prefix . "hots_logs_plugin";
 	$sql = "DROP TABLE ". $table_name;
 	$wpdb->query($sql);
@@ -75,7 +79,7 @@ function getData(){
 /*
 * Inserts a new player into the database
 * If player allready exists
-* Updates player information
+* Updates the player information
 */
 function insert_player($playerArray){
 	global $wpdb;
@@ -103,13 +107,20 @@ function insert_player($playerArray){
 
 /*
 * Updates the hotslogs.com data for all players in the database
+* Slows down page load when run!
 * Limited to 1 run every 60 min
 */
 function update_hotslogs_data(){
 	$last_scrape = get_option('hots_logs_last_scrape');
-	if ((current_time('timestamp')-$last_scrape)>=3600 ){
+	if ((current_time('timestamp')-$last_scrape) >= 3600 ){ 
 		global $wpdb;
-		$table_name = $wpdb->prefix . "hots_logs_plugin";		
+		$table_name = $wpdb->prefix . "hots_logs_plugin";	
+		$pids = $wpdb->get_col("SELECT player_id FROM $table_name");
+		foreach ($pids as $pid){
+			insert_player(scrape($pid));
+		}
+		$last_scrape = current_time('timestamp');
+		update_option('hots_logs_last_scrape', $last_scrape);
 	}	
 }
 
@@ -121,6 +132,4 @@ function delete_player($pid){
 	$table_name = $wpdb->prefix . "hots_logs_plugin";
 	$wpdb->delete($table_name, array('player_id' => $pid));
 }
-
-
 ?>

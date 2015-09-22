@@ -14,6 +14,7 @@ function __construct() {
 		// Widget description
 		array( 'description' => __( 'Displays a leaderboard of quick match MMRs.', 'qm_widget_domain' ), ) 
 	);
+	
 }
 
 // Creating widget front-end
@@ -43,7 +44,7 @@ public function widget( $args, $instance ) {
 		echo __('</tr>', 'qm_widget_domain');					// End table row
 		$i++;													// Increase position by 1
 	}
-	echo __('</table>', 'qm_widget_domain');				// Write closing table code
+	echo __('</table>', 'qm_widget_domain');				// Close the table
 	echo $args['after_widget'];
 }
 		
@@ -76,18 +77,5 @@ function qm_load_widget() {
 	register_widget( 'qm_widget' );
 }
 
-//function getData(){
-//	global $wpdb;
-//	/* wpdb class should not be called directly.global $wpdb variable is an instantiation of the class already set up to talk to the WordPress database */ 
-//	$table_name = $wpdb->prefix . "hots_logs_plugin"; 
-//	$result = $wpdb->get_results( "SELECT * FROM $table_name "); /*mulitple row results can be pulled from the database with get_results function and outputs an object which is stored in $result */
-//	
-//	//echo "<pre>"; print_r($result); echo "</pre>";
-//	/* If you require you may print and view the contents of $result object */
-//	return $result;
-//
-//	
-//	 
-//}
 add_action( 'widgets_init', 'qm_load_widget' );
 ?>
