@@ -9,10 +9,10 @@ function __construct() {
 		'hots_logs_hl_leaderboard_widget', 
 		
 		// Widget name will appear in UI
-		__('HOTS Logs | Quick Match Leaderboard', 'hl_widget_domain'), 
+		__('HOTS Logs | Hero League Leaderboard', 'hl_widget_domain'), 
 		
 		// Widget description
-		array( 'description' => __( 'Displays a leaderboard of quick match MMRs.', 'hl_widget_domain' ), ) 
+		array( 'description' => __( 'Displays a leaderboard of hero league MMRs.', 'hl_widget_domain' ), ) 
 	);
 	
 }
@@ -38,9 +38,9 @@ public function widget( $args, $instance ) {
 		
 	array_multisort($mmr, SORT_DESC, $filtered_result);
 	
-	$i=1;													// Declare an int to count the positions
-	echo __('<table width="100%">', 'hl_widget_domain');	// Write our table headers
-	foreach($filtered_result as $res => $val){				// For each filtered result
+	$i=1;													
+	echo __('<table width="100%">', 'hl_widget_domain');	
+	foreach($filtered_result as $res => $val){				
 		echo __('
 			<tr>					
 				<th>' . $i .'</th>
@@ -54,7 +54,6 @@ public function widget( $args, $instance ) {
 				echo __('
 				</td>	
 			</tr>
-			
 			', 'hl_widget_domain' 
 			);			
 		
