@@ -1,7 +1,7 @@
 # hots-logs-wp-plugin
 My first WordPress Plugin.
 
-A simple plugin to display Heroes of the Strom MMR leaderboards using data from www.hotslogs.com
+A simple plugin to display Heroes of the Storm MMR leaderboards using data from www.hotslogs.com
 ##Installation
 To add this plugin to your wordpress site:
 * **Download the zip** from this repo.
