@@ -12,7 +12,7 @@ License: GPL
 include('hots-options.php'); 	// Load the admin page code
 include('widgets/hl-leaderboard.php');		// Load the hero league widget code
 include('widgets/qm-leaderboard.php');		// Load the quick mach widget code
-include('widgets/hots_logs_all_data_widget.php');
+//include('widgets/hots_logs_all_data_widget.php');
 include_once('scraper/scraper.php');			// Load the scraper
 defined( 'ABSPATH' ) or die( 'No script kiddies please!' );
 

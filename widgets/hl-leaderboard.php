@@ -1,5 +1,5 @@
 <?php
-defined( 'ABSPATH' ) or die( 'No script kiddies please!' );
+//defined( 'ABSPATH' ) or die( 'No script kiddies please!' );
 // Creating the widget 
 class hl_widget extends WP_Widget {
 
@@ -27,39 +27,41 @@ public function widget( $args, $instance ) {
 	echo $args['before_title'] . $title . $args['after_title'];
 	
 	// This is where you run the code and display the output
-	$result = getData();								 	// Get the table from the db
-	$filtered_result = array();								// Create an array for our filtered data
-	
-	foreach($result as $res)
-		$filtered_result[] = array('name' => $res->name, 'mmr' => $res->hl_mmr, 'img' => $res->hl_image_src);	
+	$result = getData();
+	if (sizeof($result != 0)){							 	
+		$filtered_result = array();								
 		
-	foreach($filtered_result as $key => $row)
-		$mmr[$key] = $row['mmr'];
+		foreach($result as $res)
+			$filtered_result[] = array('name' => $res->name, 'mmr' => $res->hl_mmr, 'img' => $res->hl_image_src);	
+			
+		foreach($filtered_result as $key => $row)
+			$mmr[$key] = $row['mmr'];
+			
+		array_multisort($mmr, SORT_DESC, $filtered_result);
 		
-	array_multisort($mmr, SORT_DESC, $filtered_result);
-	
-	$i=1;													
-	echo __('<table width="100%">', 'hl_widget_domain');	
-	foreach($filtered_result as $res => $val){				
-		echo __('
-			<tr>					
-				<th>' . $i .'</th>
-				<td>' . $val['name'] . '</td>
-				<td>' . $val['mmr'] . '</td>
-				<td width=10%>
-					', 'qm_widget_domain' 
-				);
-				if ($val['mmr'] != 0)
-					echo __('<img id="divLeagueImage" src="'. $val['img'] .'" style="width: 20px;">', 'qm_widget_domain');
-				echo __('
-				</td>	
-			</tr>
-			', 'hl_widget_domain' 
-			);			
-		
-		$i++;
+		$i=1;													
+		echo __('<table width="100%">', 'hl_widget_domain');	
+		foreach($filtered_result as $res => $val){				
+			echo __('
+				<tr>					
+					<th>' . $i .'</th>
+					<td>' . $val['name'] . '</td>
+					<td>' . $val['mmr'] . '</td>
+					<td width=10%>
+						', 'qm_widget_domain' 
+					);
+					if ($val['mmr'] != 0)
+						echo __('<img id="divLeagueImage" src="'. $val['img'] .'" style="width: 20px;">', 'qm_widget_domain');
+					echo __('
+					</td>	
+				</tr>
+				', 'hl_widget_domain' 
+				);			
+			
+			$i++;
+		}
+		echo __('</table>', 'hl_widget_domain');
 	}
-	echo __('</table>', 'hl_widget_domain');
 	echo $args['after_widget'];
 }
 		
