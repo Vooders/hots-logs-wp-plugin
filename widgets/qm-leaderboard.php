@@ -29,22 +29,38 @@ public function widget( $args, $instance ) {
 	// This is where you run the code and display the output
 	$result = getData();								 	// Get the table from the db
 	$filtered_result = array();								// Create an array for our filtered data
-	foreach($result as $res){								// For each result in the table...
-		$k = $res->name;										// Save the key(player name) to k
-		$v = $res->qm_mmr;										// Save the value(mmr) to v
-		$filtered_result[$k] = $v;								// Add k and v to our filtered array
-	}
-	arsort($filtered_result);								// Sort the filtered array so highest mmr is top
+	
+	foreach($result as $res)
+		$filtered_result[] = array('name' => $res->name, 'mmr' => $res->qm_mmr, 'img' => $res->qm_image_src);	
+		
+	foreach($filtered_result as $key => $row)
+		$mmr[$key] = $row['mmr'];
+		
+	array_multisort($mmr, SORT_DESC, $filtered_result);
+	
 	$i=1;													// Declare an int to count the positions
 	echo __('<table width="100%">', 'qm_widget_domain');	// Write our table headers
-	foreach($filtered_result as $key => $val){				// For each filtered result
-		echo __('<tr>', 'qm_widget_domain');					// Start table row
-		echo __("<th>" . $i ."</th><td>".$key."</td><td>".		// Write the position, name and mmr 
-					$val."</td>", 'qm_widget_domain' );			// to the table
-		echo __('</tr>', 'qm_widget_domain');					// End table row
-		$i++;													// Increase position by 1
+	foreach($filtered_result as $res => $val){				// For each filtered result
+		echo __('
+			<tr>					
+				<th>' . $i .'</th>
+				<td>' . $val['name'] . '</td>
+				<td>' . $val['mmr'] . '</td>
+				<td width=10%>
+				', 'qm_widget_domain' 
+			);
+			if ($val['mmr'] != 0)
+				echo __('<img id="divLeagueImage" src="'. $val['img'] .'" style="width: 20px;">', 'qm_widget_domain');
+			echo __('
+				</td>	
+			</tr>
+			
+			', 'qm_widget_domain' 
+			);			
+		
+		$i++;
 	}
-	echo __('</table>', 'qm_widget_domain');				// Close the table
+	echo __('</table>', 'qm_widget_domain');
 	echo $args['after_widget'];
 }
 		

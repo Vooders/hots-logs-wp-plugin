@@ -12,14 +12,27 @@ function scrape($p){
 			'heroLeague' => '0',
 			'quickMatch' => '0',
 			'combLevel' => '0',
-			'totalGames' => '0'
+			'totalGames' => '0',
+			'hl_image' => '0',
+			'qm_image' => '0'
 		);
 	
 	$page = get($url, array('PlayerID' => $p));
 	
 	$get_name = scrape_between($page, '<h1 class="section-title">', '</h1>');
-	$bits = explode(': ', $get_name);
-	$player_data['name'] = $bits[1];
+	if ($get_name != ''){
+		$bits = explode(': ', $get_name);
+		$player_data['name'] = $bits[1];
+	}
+	
+	$league_image = array(
+		'Bronze' => '//d1i1jxrdh2kvwy.cloudfront.net/Images/Leagues/5.png',
+		'Silver' => '//d1i1jxrdh2kvwy.cloudfront.net/Images/Leagues/4.png',
+		'Gold' => '//d1i1jxrdh2kvwy.cloudfront.net/Images/Leagues/3.png',
+		'Platinum' => '//d1i1jxrdh2kvwy.cloudfront.net/Images/Leagues/2.png',
+		'Diamond' => '//d1i1jxrdh2kvwy.cloudfront.net/Images/Leagues/1.png',
+		'Master' => '//d1i1jxrdh2kvwy.cloudfront.net/Images/Leagues/0.png'
+	);
 	
 	$table = scrape_between($page, '<table class="table table-striped tableGeneralInformation">', '</table>');
 	if ($table != ''){
@@ -37,15 +50,19 @@ function scrape($p){
 			}
 			$data[$row] = array_values(array_filter($data[$row]));
 		}
-	
+
 		foreach($data as $d){
 			if ($d[0] == 'Hero League'){
 				$bits =  explode(' ', $d[1]);
+				$league = trim($bits[0], chr(0xC2).chr(0xA0));
+				$player_data['hl_image'] = $league_image[$league];
 				$mmr = explode(')', end($bits));
 				$player_data['heroLeague'] =  $mmr[0];
 			} 
 			else if ($d[0] == 'Quick Match'){
 				$bits =  explode(' ', $d[1]);
+				$league = trim($bits[0], chr(0xC2).chr(0xA0));
+				$player_data['qm_image'] = $league_image[$league];
 				$mmr = explode(')', end($bits));
 				$player_data['quickMatch'] =  $mmr[0];
 			} 

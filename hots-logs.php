@@ -58,6 +58,8 @@ function hots_logs_make_db(){
 		qm_mmr int(5) NOT NULL,
 		comb_hero_level int(5) NOT NULL,
 		total_games_played int (9) NOT NULL,
+		hl_image_src VARCHAR(2083) NOT NULL,
+		qm_image_src VARCHAR(2083) NOT NULL,
 		UNIQUE KEY player_id (player_id)
 	) $charset_collate;";
 	
@@ -92,10 +94,14 @@ function insert_player($playerArray){
 			'hl_mmr' => $playerArray['heroLeague'], 
 			'qm_mmr' => $playerArray['quickMatch'],
 			'comb_hero_level' => $playerArray['combLevel'],	
-			'total_games_played' => $playerArray['totalGames']
+			'total_games_played' => $playerArray['totalGames'],
+			'hl_image_src' => $playerArray['hl_image'],
+			'qm_image_src' => $playerArray['qm_image']
 		),
 		array (
 			'%d',
+			'%s',
+			'%s',
 			'%s',
 			'%s',
 			'%s',
@@ -131,5 +137,17 @@ function delete_player($pid){
 	global $wpdb;
 	$table_name = $wpdb->prefix . "hots_logs_plugin";
 	$wpdb->delete($table_name, array('player_id' => $pid));
+}
+
+/*
+* Dev Function!
+* Logs text to a file (log.txt)
+*/
+function logThis($textString){
+	$date = date_create();									// Get the date/time for the timestamp
+	$stamp = date_format($date, '[d-m][H:i:s] ');			// Format it 
+	$file = fopen("log.txt","a") or die ('fopen failed'); 	// Open the log.txt file
+	fwrite($file, $stamp . $textString . PHP_EOL);			// Add the line to the end of the file
+	fclose($file) or die ('fclose failed');					// Close the file
 }
 ?>
