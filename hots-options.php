@@ -8,14 +8,24 @@ if ( is_admin() ){ // Checks user is an admin
 		add_options_page('Hots Logs', 'Hots Logs', 'administrator',	'hots_logs', 'hots_logs_html_page');
 	}
 	
-	if(isset($_POST['submit'])){ 						// If submit button has been pressed
-		include_once('scraper/scraper.php');	
-		$valid_player = scrape($_POST['player_id']);	// Scrape the page
-		if ($valid_player != false){					// If scraper had no problems
+
+	if(isset($_POST['player_id'])){
+		include_once('scraper/api_scraper.php');	
+		$valid_player = add_pid($_POST['player_id']);	// Scrape the page
+		if ($valid_player != false){
 			insert_player($valid_player);					// Insert the player
 			add_action( 'admin_notices', 'player_added_notice' );	// Show success message
 		} else {										// If scraper returns false
 			add_action( 'admin_notices', 'error_notice' ); 	// Show error notice take no other action
+		}
+	} elseif(isset($_POST['battle_tag'])){
+		include_once('scraper/api_scraper.php');	
+		$valid_player = add_btag($_POST['battle_tag'], $_POST['region']);	// Scrape the page
+		if ($valid_player != false){
+			insert_player($valid_player);					// Insert the player
+			add_action( 'admin_notices', 'player_added_notice' );	// Show success message
+		} else {										// If scraper returns false
+			add_action( 'admin_notices', 'error_notice_btag' ); 	// Show error notice take no other action
 		}
 	}
 	elseif(isset($_POST['delete'])){
@@ -29,29 +39,66 @@ function hots_logs_html_page() {
 <div>
 <h1>Hots Logs Options</h1>
 <p> Add your friends to create your own leaderboards from data scraped from hotslogs.com</p>
-<h2>Add a Player</h2>
-<p>Enter the HOTS Logs player ID of the player you want to add.</p>
-<form method='post' action=''>
 <?php 
 	settings_fields('hots_logs'); 
 	do_settings_sections('hots_logs');
 ?>
-<table width='400px'>
-    <tr valign='top'>
-        <th width='20%' scope='row'>Player ID</th>
-        <td width='60%'>
-            <input name='player_id' type='text' id='player_data' value='' />
-        </td>
-        <td width="20%">
-        	<?php submit_button('Add'); ?>
-        </td>
-    </tr>   
+<table width="100%">
+<thead>
+<tr>
+	<td>
+    	<h2>Add a Player by Player ID</h2>
+		<p>Enter the HOTS Logs player ID of the player you want to add.</p>
+    </td>
+    <td>
+    	<h2>Add a Player by BattleTag</h2>
+		<p>Enter the BattleTag and region of the player you want to add.</p>
+    </td>
+</tr>
+</thead>
+<tbody>
+<th>
+<tr>
+<td>
+    <table width='400px'>
+        <tr valign='top'>
+            <th width='20%' scope='row'>Player ID</th>
+            <td width='60%'>
+            	<form method='post' action=''>
+                <input name='player_id' type='text' id='player_data' value='' />
+            </td>
+            <td width="20%">
+                <?php submit_button('Add', 'primary', 'playerID'); ?>
+                <input type='hidden' name='action' value='update' />
+				<input type='hidden' name='page_options' value='player_id' />
+                </form>
+            </td>
+        </tr>  
+    </table>
+</td>
+<td>
+	<table width='400px'>
+        <tr valign='top'>
+            <th width='20%' scope='row'>BattleTag</th>
+            <td width='60%'>
+            	<form method='post' action=''>
+                <input name='battle_tag' type='text' id='battle_tag' value='' /><br>
+                <input type="radio" name="region" value="1">US
+				<input type="radio" name="region" value="2" checked>EU
+            </td>
+            <td width="20%">
+                <?php submit_button('Add', 'primary', 'playerID'); ?>
+                <input type='hidden' name='action' value='update' />
+				<input type='hidden' name='page_options' value='battle_tag' />
+                </form>
+            </td>
+        </tr>  
+ 
+    </table>
+</td>
+</tr>
+</tbody>
 </table>
-<input type='hidden' name='action' value='update' />
-<input type='hidden' name='page_options' value='player_id' />
-<p>You can find the player ID by looking at their profile on hotslogs.com and taking it from the URL.<br />
- <small>www.hotslogs.com/Player/Profile?PlayerID=</small><b><big>1839756</big></b></p> 
-</form>
 <h2>Current Players</h2>
 <p>These are the players currently in the database.</p>
 <table class="widefat" cellspacing="0">
@@ -114,5 +161,12 @@ function error_notice() {
 	$message = "Error! You entered an invalid HOTS Logs player ID.";
         echo"<div class=\"$class\"> <p>$message</p></div>"; 
 }
+
+function error_notice_btag() {
+	$class = "error";
+	$message = "Error! You entered an invalid BattleTag.";
+        echo"<div class=\"$class\"> <p>$message</p></div>"; 
+}
+
 
 ?>

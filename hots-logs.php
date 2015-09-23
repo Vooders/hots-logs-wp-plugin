@@ -3,7 +3,7 @@
 Plugin Name: Hots Logs - Leaderboards
 Plugin URI: http://vooders.com/
 Description: A simple plugin to compare Hots Logs player data.
-Version: 0.1
+Version: 1.1
 Author: Vooders
 Author URI: http://vooders.com
 License: GPL
@@ -13,7 +13,7 @@ include('hots-options.php'); 	// Load the admin page code
 include('widgets/hl-leaderboard.php');		// Load the hero league widget code
 include('widgets/qm-leaderboard.php');		// Load the quick mach widget code
 //include('widgets/hots_logs_all_data_widget.php');
-include_once('scraper/scraper.php');			// Load the scraper
+include_once('scraper/api_scraper.php');			// Load the scraper
 defined( 'ABSPATH' ) or die( 'No script kiddies please!' );
 
 /* Runs when plugin is activated */
@@ -56,8 +56,6 @@ function hots_logs_make_db(){
 		name tinytext NOT NULL,
 		hl_mmr int(5) NOT NULL,
 		qm_mmr int(5) NOT NULL,
-		comb_hero_level int(5) NOT NULL,
-		total_games_played int (9) NOT NULL,
 		hl_image_src VARCHAR(2083) NOT NULL,
 		qm_image_src VARCHAR(2083) NOT NULL,
 		UNIQUE KEY player_id (player_id)
@@ -93,15 +91,11 @@ function insert_player($playerArray){
 			'name' => $playerArray['name'], 
 			'hl_mmr' => $playerArray['heroLeague'], 
 			'qm_mmr' => $playerArray['quickMatch'],
-			'comb_hero_level' => $playerArray['combLevel'],	
-			'total_games_played' => $playerArray['totalGames'],
 			'hl_image_src' => $playerArray['hl_image'],
 			'qm_image_src' => $playerArray['qm_image']
 		),
 		array (
 			'%d',
-			'%s',
-			'%s',
 			'%s',
 			'%s',
 			'%s',
@@ -123,7 +117,7 @@ function update_hotslogs_data(){
 		$table_name = $wpdb->prefix . "hots_logs_plugin";	
 		$pids = $wpdb->get_col("SELECT player_id FROM $table_name");
 		foreach ($pids as $pid){
-			insert_player(scrape($pid));
+			insert_player(add_pid($pid));
 		}
 		$last_scrape = current_time('timestamp');
 		update_option('hots_logs_last_scrape', $last_scrape);
