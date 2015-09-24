@@ -24,4 +24,3 @@ To remove a player from the database
 ##Updating Data
 Data from www.hotslogs.com is automatically updated by the plugin at the most once per hour.
 
-This is currently triggered by wp_loaded and can slow page load while it's running. I'm looking for a way to fix this.
