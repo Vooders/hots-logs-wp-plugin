@@ -9,22 +9,32 @@ if ( is_admin() ){ // Checks user is an admin
 	}
 	
 
-	if(isset($_POST['player_id'])){
-		include_once('scraper/api_scraper.php');	
-		$valid_player = add_pid($_POST['player_id']);	// Scrape the page
+	if(isset($_POST['player_id'])){		// PlayerID is a simple int max (9)
+		$check_id = intval($_POST['player_id']); 	// Make sure player ID is a number
+		if ( strlen( $check_id ) > 9 ) {			
+		  $check_id = substr( $check_id, 0, 9 );
+		}
+		include_once('scraper/api_scraper.php');	// Scraper will return false if an invalid hotslogs id is passed
+		$valid_player = add_pid($check_id);			// Scrape the page
 		if ($valid_player != false){
 			insert_player($valid_player);					// Insert the player
 			add_action( 'admin_notices', 'player_added_notice' );	// Show success message
 		} else {										// If scraper returns false
 			add_action( 'admin_notices', 'error_notice' ); 	// Show error notice take no other action
 		}
-	} elseif(isset($_POST['battle_tag'])){
-		include_once('scraper/api_scraper.php');	
-		$valid_player = add_btag($_POST['battle_tag'], $_POST['region']);	// Scrape the page
-		if ($valid_player != false){
-			insert_player($valid_player);					// Insert the player
-			add_action( 'admin_notices', 'player_added_notice' );	// Show success message
-		} else {										// If scraper returns false
+		
+	} elseif(isset($_POST['battle_tag'])){	
+		$clean_tag = check_input($_POST['battle_tag'], $_POST['region']); // Check the user input
+		if ($clean_tag != false){ // If input is good
+			include_once('scraper/api_scraper.php');	
+			$valid_player = add_btag($_POST['battle_tag'], $_POST['region']);	// Scrape the page return false if an invalid battletag is passed
+			if ($valid_player != false){ // If a valid hotslogs profile is found
+				insert_player($valid_player);					// Insert the player
+				add_action( 'admin_notices', 'player_added_notice' );	// Show success message
+			} else {										// If scraper returns false
+				add_action( 'admin_notices', 'error_notice_btag' ); 	// Show error notice take no other action
+			}
+		} else {										
 			add_action( 'admin_notices', 'error_notice_btag' ); 	// Show error notice take no other action
 		}
 	}
@@ -33,7 +43,17 @@ if ( is_admin() ){ // Checks user is an admin
 		add_action( 'admin_notices', 'player_deleted_notice' );
 	}
 }
-
+function check_input($tag, $reg){
+		// BattleTag format : NAME#1234
+		$tag = explode('#', $tag); // Split the battle tag 
+		if ((sizeof($tag) == 2) && ($reg == 1 || 2 )){ // Check we have 2 parts to the tag and a valid region
+			$tag[0] = sanitize_text_field($tag[0]); // Clean the name
+			$tag[1] = intval($tag[1]); // Clean the ID number
+			return $tag;
+		} else {
+			return false;	
+		}
+	}
 function hots_logs_html_page() {
 ?>
 <div>
@@ -65,7 +85,7 @@ function hots_logs_html_page() {
             <th width='20%' scope='row'>Player ID</th>
             <td width='60%'>
             	<form method='post' action=''>
-                <input name='player_id' type='text' id='player_data' value='' />
+                <input name='player_id' type='text' id='player_data' value='' maxlength='10'/>
             </td>
             <td width="20%">
                 <?php submit_button('Add', 'primary', 'playerID'); ?>
@@ -82,7 +102,7 @@ function hots_logs_html_page() {
             <th width='20%' scope='row'>BattleTag</th>
             <td width='60%'>
             	<form method='post' action=''>
-                <input name='battle_tag' type='text' id='battle_tag' value='' /><br>
+                <input name='battle_tag' type='text' id='battle_tag' value='' maxlength='20'/><br>
                 <input type="radio" name="region" value="1">US
 				<input type="radio" name="region" value="2" checked>EU
             </td>

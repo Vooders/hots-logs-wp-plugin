@@ -1,6 +1,5 @@
 <?php
 //error_reporting(E_ALL); ini_set('display_errors',1);
-//include('curl.php');
 
 function add_pid($pid){
 	$api_url = 'https://www.hotslogs.com/API/Players/';
@@ -17,7 +16,7 @@ function add_btag($tag, $reg){
 
 function scrape($url){
 	
-	$img_url = '//d1i1jxrdh2kvwy.cloudfront.net/Images/Leagues/';
+	$img_url = WP_PLUGIN_URL . '/hotslogs-local-leaderboards/images/' ;
 	
 	$player_data = array(
 			'name' => null,
@@ -30,8 +29,8 @@ function scrape($url){
 	
 	$page = curl($url);	
 	
-	$player_data['name'] = scrape_between($page, '"Name":"', '",');
-	$player_data['pid'] = scrape_between($page, '"PlayerID":', ',');
+	$player_data['name'] = sanitize_text_field(scrape_between($page, '"Name":"', '",'));
+	$player_data['pid'] = sanitize_text_field(scrape_between($page, '"PlayerID":', ','));
 	
 	$game_modes = scrape_between($page, '[', ']');
 	$game_modes = explode('},{', $game_modes);
@@ -41,11 +40,11 @@ function scrape($url){
 		$league = scrape_between($gm, '"LeagueID":', ',');
 		$mmr = scrape_between($gm, '"CurrentMMR":', '}');
 		if ($mode == 'QuickMatch'){
-			$player_data['quickMatch'] = $mmr;
+			$player_data['quickMatch'] = sanitize_text_field($mmr);
 			$player_data['qm_image'] = $img_url . $league . '.png';
 		}
 		elseif ($mode == 'HeroLeague'){
-			$player_data['heroLeague'] = $mmr;
+			$player_data['heroLeague'] = sanitize_text_field($mmr);
 			$player_data['hl_image'] = $img_url . $league . '.png';
 		}
 	}

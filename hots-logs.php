@@ -3,18 +3,16 @@
 Plugin Name: Hots Logs - Leaderboards
 Plugin URI: http://vooders.com/
 Description: A simple plugin to compare Hots Logs player data.
-Version: 1.1
+Version: 1.1.2
 Author: Vooders
 Author URI: http://vooders.com
 License: GPL
 */
-
+defined( 'ABSPATH' ) or die( 'No script kiddies please!' );
 include('hots-options.php'); 	// Load the admin page code
 include('widgets/hl-leaderboard.php');		// Load the hero league widget code
 include('widgets/qm-leaderboard.php');		// Load the quick mach widget code
-//include('widgets/hots_logs_all_data_widget.php');
 include_once('scraper/api_scraper.php');			// Load the scraper
-defined( 'ABSPATH' ) or die( 'No script kiddies please!' );
 
 /* Runs when plugin is activated */
 register_activation_hook( __FILE__, 'hots_logs_install'); 
@@ -23,6 +21,8 @@ register_activation_hook( __FILE__, 'hots_logs_install');
 register_deactivation_hook( __FILE__, 'hots_logs_uninstall' );
 
 add_action('wp_loaded', 'update_hotslogs_data');
+add_action('init', 'quick_match_register_shortcode');
+add_action('init', 'hero_league_register_shortcode');
 
 /*
 * The installation function
@@ -40,6 +40,7 @@ function hots_logs_uninstall() {
 	$sql = "DROP TABLE ". $table_name;
 	$wpdb->query($sql);
 }
+
 
 /*
 * Creates the database table to store our player data 
@@ -133,15 +134,4 @@ function delete_player($pid){
 	$wpdb->delete($table_name, array('player_id' => $pid));
 }
 
-/*
-* Dev Function!
-* Logs text to a file (log.txt)
-*/
-function logThis($textString){
-	$date = date_create();									// Get the date/time for the timestamp
-	$stamp = date_format($date, '[d-m][H:i:s] ');			// Format it 
-	$file = fopen("log.txt","a") or die ('fopen failed'); 	// Open the log.txt file
-	fwrite($file, $stamp . $textString . PHP_EOL);			// Add the line to the end of the file
-	fclose($file) or die ('fclose failed');					// Close the file
-}
 ?>
