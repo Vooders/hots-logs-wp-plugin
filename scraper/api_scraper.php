@@ -16,7 +16,7 @@ function add_btag($tag, $reg){
 
 function scrape($url){
 	
-	$img_url = WP_PLUGIN_URL . '/hotslogs-local-leaderboards/images/' ;
+	$img_url = WP_PLUGIN_URL . '/hots-logs-local-leaderboards/images/' ;
 	
 	$player_data = array(
 			'name' => null,
