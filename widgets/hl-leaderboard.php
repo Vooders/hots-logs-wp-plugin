@@ -41,22 +41,24 @@ public function widget( $args, $instance ) {
 		
 		$i=1;													
 		echo __('<table width="100%">', 'hl_widget_domain');	
-		foreach($filtered_result as $res => $val){				
-			echo __('
-				<tr>					
-					<th>' . $i .'</th>
-					<td>' . $val['name'] . '</td>
-					<td>' . $val['mmr'] . '</td>
-					<td width=10%>
-						', 'qm_widget_domain' 
+		foreach($filtered_result as $res => $val){	
+			if ($val['mmr'] != 0){			
+				echo __('
+					<tr>					
+						<th>' . $i .'</th>
+						<td>' . $val['name'] . '</td>
+						<td>' . $val['mmr'] . '</td>
+						<td width=10%>
+							', 'qm_widget_domain' 
+						);
+						if ($val['mmr'] != 0)
+							echo __('<img id="divLeagueImage" src="'. $val['img'] .'" style="width: 20px;">', 'qm_widget_domain');
+						echo __('
+						</td>	
+					</tr>
+					', 'hl_widget_domain' 
 					);
-					if ($val['mmr'] != 0)
-						echo __('<img id="divLeagueImage" src="'. $val['img'] .'" style="width: 20px;">', 'qm_widget_domain');
-					echo __('
-					</td>	
-				</tr>
-				', 'hl_widget_domain' 
-				);			
+			}
 			
 			$i++;
 		}

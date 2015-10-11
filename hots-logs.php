@@ -3,7 +3,7 @@
 Plugin Name: Hots Logs - Leaderboards
 Plugin URI: http://vooders.com/
 Description: A simple plugin to compare Hots Logs player data.
-Version: 1.1.2
+Version: 1.2.2
 Author: Vooders
 Author URI: http://vooders.com
 License: GPL

@@ -33,15 +33,16 @@ function scrape($url){
 	$leagues = $data['LeaderboardRankings'];
 	
 	foreach ($leagues as $league){
-		if ($league['LeagueID'] == '')
-			$league['LeagueID'] == 'null';
+		$league_id = $league['LeagueID'];
+		if ($league_id === NULL)
+			$league_id = 'null';
 		if ($league['GameMode'] == 'QuickMatch'){
 			$player_data['quickMatch'] = $league['CurrentMMR'];
-			$player_data['qm_image'] = $img_url . $league['LeagueID'] . '.png';
+			$player_data['qm_image'] = $img_url . $league_id . '.png';
 		}
 		elseif ($league['GameMode'] == 'HeroLeague'){
 			$player_data['heroLeague'] = $league['CurrentMMR'];
-			$player_data['hl_image'] = $img_url . $league['LeagueID'] . '.png';
+			$player_data['hl_image'] = $img_url . $league_id . '.png';
 		}
 	}
 	
